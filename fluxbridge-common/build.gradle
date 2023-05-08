@@ -1,0 +1,27 @@
+plugins {
+	id 'java'
+}
+
+group = 'com.tho'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+
+	implementation 'net.openhft:chronicle-queue:5.22.28'
+	implementation 'net.openhft:chronicle-map:3.22.9'
+
+	implementation 'io.projectreactor:reactor-core:3.5.4'
+
+
+	compileOnly 'org.projectlombok:lombok:1.18.16'
+	annotationProcessor 'org.projectlombok:lombok:1.18.16'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

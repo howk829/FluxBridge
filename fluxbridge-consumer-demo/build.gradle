@@ -1,0 +1,56 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.0.6'
+	id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'com.tho'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-rsocket'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation 'net.openhft:chronicle-queue:5.22.28'
+
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+bootRun {
+	jvmArgs = [
+			"--illegal-access=permit",
+			"--add-opens=java.base/java.lang=ALL-UNNAMED",
+			"--add-exports=java.base/jdk.internal.ref=ALL-UNNAMED",
+			"--add-exports=java.base/sun.nio.ch=ALL-UNNAMED",
+			"--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED",
+			"--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+			"--add-opens=jdk.compiler/com.sun.tools.javac=ALL-UNNAMED",
+			"--add-opens=java.base/java.lang=ALL-UNNAMED",
+			"--add-opens=java.base/java.lang.reflect=ALL-UNNAMED",
+			"--add-opens=java.base/java.io=ALL-UNNAMED",
+			"--add-opens=java.base/java.util=ALL-UNNAMED",
+
+	]
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
