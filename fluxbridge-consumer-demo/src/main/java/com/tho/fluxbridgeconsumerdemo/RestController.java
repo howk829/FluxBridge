@@ -1,11 +1,15 @@
 package com.tho.fluxbridgeconsumerdemo;
 
-import com.tho.fluxbridgeconsumerdemo.mq.FluxBus;
+import com.tho.fluxbridge.common.dto.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.http.codec.json.Jackson2JsonDecoder;
+import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.messaging.rsocket.RSocketRequester;
+import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import reactor.util.function.Tuple2;
+
 
 import java.util.Map;
 
@@ -14,17 +18,37 @@ import java.util.Map;
 public class RestController {
 
     @Autowired
-    FluxBus fluxBus;
+    private RSocketRequester rSocketRequester;
 
     @GetMapping("/test")
     public String testQueue() {
 
-        fluxBus.publish("register", Map.of(), "tommyho", String.class);
+        RSocketRequester rSocketRequester = RSocketRequester.builder()
+                .rsocketStrategies(
+                        RSocketStrategies.builder()
 
-        fluxBus.subscribe("register", null, true, String.class)
-                .map(Tuple2::toString)
-                .doOnNext(n -> log.info("receiving: {}", n))
-                .subscribe();
+                                .decoder(new Jackson2JsonDecoder())
+                                .encoder(new Jackson2JsonEncoder())
+                                .metadataExtractorRegistry(metadataExtractorRegistry -> {
+                                    // meta
+                                })
+                                .dataBufferFactory(new DefaultDataBufferFactory(true))
+                                .build()
+                )
+                .tcp("localhost", 7002);
+
+        var res = rSocketRequester
+                .route("publish")
+                .data(Message
+                        .builder()
+                        .topic("register")
+                        .data("tommyho")
+                        .build()
+                )
+                .retrieveMono(String.class)
+                .block();
+
+        log.info("res: {}", res);
         return "finished";
     }
 

@@ -1,7 +1,8 @@
 package com.tho.fluxbridgeconsumerdemo;
 
-import com.tho.fluxbridgeconsumerdemo.dto.DataSpec;
-import com.tho.fluxbridgeconsumerdemo.dto.Message;
+
+import com.tho.fluxbridge.common.dto.DataSpec;
+import com.tho.fluxbridge.common.dto.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;

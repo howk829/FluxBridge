@@ -16,6 +16,7 @@ configurations {
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 }
 
 dependencies {
@@ -28,6 +29,8 @@ dependencies {
 	implementation 'net.openhft:chronicle-map:3.22.9'
 //	implementation 'net.openhft:chronicle-bytes:2.24ea9'
 	implementation enforcedPlatform('net.openhft:third-party-bom:3.19.4')
+
+	implementation 'com.tho:fluxbridge-common:0.0.1-SNAPSHOT'
 
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'

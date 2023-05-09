@@ -1,9 +1,10 @@
 package com.tho.fluxbridgebroker;
 
-import com.tho.fluxbridgebroker.dto.DataSpec;
-import com.tho.fluxbridgebroker.dto.Message;
-import com.tho.fluxbridgebroker.mq.FluxBus;
-import com.tho.fluxbridgebroker.repo.KeyValueStore;
+
+import com.tho.fluxbridge.common.dto.DataSpec;
+import com.tho.fluxbridge.common.dto.Message;
+import com.tho.fluxbridge.common.mq.FluxBus;
+import com.tho.fluxbridge.common.repo.KeyValueStore;
 import lombok.extern.slf4j.Slf4j;
 import net.openhft.chronicle.queue.ChronicleQueue;
 import net.openhft.chronicle.queue.impl.single.SingleChronicleQueueBuilder;
@@ -14,6 +15,8 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Controller;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
+import reactor.util.concurrent.Queues;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -31,6 +34,9 @@ public class FluxbridgeController {
     @Autowired
     KeyValueStore keyValueStore;
 
+    @Autowired
+    Sinks.Many<DataSpec> s;
+
     @PostConstruct
     void postConstruct() {
 
@@ -41,20 +47,25 @@ public class FluxbridgeController {
 //                .singleBuilder("E:\\temp\\register_user").blockSize(65536).build();
 //
 //        log.info("queue_out {}", queue_out);
-
-
     }
-
 
     @MessageMapping("publish")
     public Mono<String> publish(@Headers Map<String, Object> metadata, @Payload Message<String> message) {
 
 
         // empty metadata
-        long lastIndex = fluxBus.publish(message.getTopic(), Map.of(), message.getData(), String.class);
-        log.info("publish lastIndex: {}", lastIndex);
-        //record index after publish
-        keyValueStore.putValue(message.getTopic(), lastIndex);
+//        long lastIndex = fluxBus.publish(message.getTopic(), Map.of(), message.getData(), String.class);
+//        log.info("publish lastIndex: {}", lastIndex);
+//        //record index after publish
+//        keyValueStore.putValue(message.getTopic(), lastIndex);
+
+        s.emitNext(
+                DataSpec.builder()
+                        .message(message.getData())
+                        .build(),
+                Sinks.EmitFailureHandler.FAIL_FAST
+        );
+
         return Mono.just("published");
     }
 
@@ -63,11 +74,15 @@ public class FluxbridgeController {
         // get topic last index
 
         log.info("subscribe: {}", message);
-        long lastIndex = keyValueStore.getOrDef(message.getTopic(), -1);
-        return fluxBus.subscribe(message.getTopic(), lastIndex == -1 ? null : lastIndex, true, String.class)
-                .map(u -> DataSpec.builder().metadata(u.getT1()).message(u.getT2()).build());
-//        return fluxBus.subscribe(message.getTopic(), lastIndex == -1 ? null: lastIndex, true, String.class)
-//                .map(u -> DataSpec.builder().metadata(u.getT1()).message(u.getT2()).build());
+        // problem: failed to send the subscribed data
+
+        return s.asFlux();
+
+        // return Flux.just(DataSpec.builder().message("hello").build());
+        // long lastIndex = keyValueStore.getOrDef(message.getTopic(), -1);
+//        return fluxBus.subscribe(message.getTopic(), null, true, String.class)
+//                .map(u -> DataSpec.builder().metadata(u.getT1()).message(u.getT2()).build())
+//                .concatWith(Flux.just(DataSpec.builder().message("hello").build()));
 
     }
 }

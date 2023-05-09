@@ -1,12 +1,14 @@
 package com.tho.fluxbridge.common.dto;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 import java.util.Map;
 
+@Data
 @Builder
-@Getter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 public class DataSpec {
     Map<String, Object> metadata;
     String message;
