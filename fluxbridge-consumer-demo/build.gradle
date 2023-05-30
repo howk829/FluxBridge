@@ -29,7 +29,6 @@ dependencies {
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
-	implementation 'net.openhft:chronicle-queue:5.22.28'
 
 	implementation 'com.tho:fluxbridge-common:0.0.1-SNAPSHOT'
 

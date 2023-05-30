@@ -11,5 +11,5 @@ import java.util.Map;
 @ToString
 public class DataSpec {
     Map<String, Object> metadata;
-    String message;
+    String data;
 }

@@ -8,11 +8,12 @@ import org.springframework.stereotype.Controller;
 
 @Controller
 @Slf4j
-public class DemoController {
+public class DemoConsumer {
 
     @FluxBridgeListener(topic = "register")
     public void register(DataSpec dataSpec) {
-        log.info("receiving dataSpec: {}", dataSpec);
+        log.info("receiving metadata: {}", dataSpec.getMetadata());
+        log.info("receiving data: {}", dataSpec.getData());
     }
 
 }

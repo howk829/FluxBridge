@@ -32,8 +32,9 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class FluxBusBeanPostProcessor implements DestructionAwareBeanPostProcessor {
 
-    private Map<String, Disposable> handlerMap = new HashMap<>();
-    private ThreadPoolExecutor executor = new ThreadPoolExecutor(
+    private final Map<String, Disposable> handlerMap = new HashMap<>();
+
+    private final ThreadPoolExecutor executor = new ThreadPoolExecutor(
         6, 16, 1, TimeUnit.SECONDS, new LinkedBlockingDeque<>()
     );
 
@@ -63,12 +64,6 @@ public class FluxBusBeanPostProcessor implements DestructionAwareBeanPostProcess
                     }
 
                     FluxBridgeListener annotInstance = method.getAnnotation(FluxBridgeListener.class);
-
-                    // String topic = (companyName.equals("slipstream") ? "" : companyName + "_") + annotInstance.event();
-                    // log.info("companyName: {}", companyName);
-                    // log.info("Subscribing topic : {}", topic);
-
-                    // use rsocket instead
                     processCommand(annotInstance.topic(), bean, method);
                 }
             }
@@ -81,11 +76,7 @@ public class FluxBusBeanPostProcessor implements DestructionAwareBeanPostProcess
         // initial frame
         var d = rSocketRequester
                 .route("subscribe")
-                .data(
-                        Message.builder()
-                        .topic(topic)
-                        .build()
-                )
+                .data(topic)
                 .retrieveFlux(DataSpec.class)
                 .doOnNext(m -> {
                     try {
@@ -94,7 +85,7 @@ public class FluxBusBeanPostProcessor implements DestructionAwareBeanPostProcess
                         log.error("error processing fluxbridge listener", e);
                     }
                 })
-                .subscribeOn(Schedulers.fromExecutor(executor))
+                .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
         handlerMap.put(topic, d);
 
