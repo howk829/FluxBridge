@@ -10,6 +10,7 @@ import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @org.springframework.web.bind.annotation.RestController
 @Slf4j
@@ -18,7 +19,7 @@ public class RestController {
     @Autowired
     private RSocketRequester rSocketRequester;
 
-    @GetMapping("/register")
+    @PostMapping("/register")
     public String register() {
 
         Gson gson = new Gson();

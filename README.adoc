@@ -49,9 +49,8 @@ public class FluxbridgeConsumerDemoApplication {
 }
 ----
 
-Annotate the consumer method with @FluxBridgeListener Annotation, specify the topic.
-The method parameter needs to be DataSpec.
-Once the producer publish a message with corresponding topic, metadata and data from that message can be obt
+Annotate the consumer method with @FluxBridgeListener Annotation, specify the topic with method parameter DataSpec.
+Once the producer publish a message with corresponding topic, metadata and data from that message can be obtained.
 [source, Java] 
 ----
 @Controller
@@ -87,12 +86,12 @@ public class FluxbridgeProducerDemoApplication {
     // broker port
 	@Value("${fluxbridge.port}")
 	int fluxBridgePort;
+    
 	@Bean
 	RSocketRequester rSocketRequester() {
 		return RSocketRequester.builder()
 				.rsocketStrategies(
 						RSocketStrategies.builder()
-
 								.decoder(new Jackson2JsonDecoder())
 								.encoder(new Jackson2JsonEncoder())
 								.metadataExtractorRegistry(metadataExtractorRegistry -> {
@@ -116,7 +115,7 @@ public class RestController {
     @Autowired
     private RSocketRequester rSocketRequester;
 
-    @GetMapping("/register")
+    @PostMapping("/register")
     public String register() {
 
         Gson gson = new Gson();
