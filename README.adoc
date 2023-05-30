@@ -35,7 +35,7 @@ The publish-subscribe pattern is based on the concept of decoupling. Publishers 
 ./gradlew bootRun
 ----
 
-=== Producer example
+=== Consumer example
 
 Import FluxBridgeConfiguration.class in main/configuration class
 [source, Java] 
@@ -67,7 +67,7 @@ public class DemoConsumer {
 }
 ----
 
-===  Consumer example 
+===  Producer example 
 
 As the broker is build on top of RSocket. You need to configure a rsocket requester in your application.
 [source, Java]
