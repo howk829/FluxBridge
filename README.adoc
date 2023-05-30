@@ -7,10 +7,23 @@
 toc::[]
 
 
-== About FluxBridge
-hello
-
 == Overview
-hello2
 
-== What Is FluxBridge?
+image::fluxbridge.png
+
+FluxBridge is a publish-subscribe message broker build on top of https://rsocket.io/[RSocket] protocol. It can be used in many distributed systems, such as microservices and event-driven architectures. Publishers send messages to a topic or channel, and subscribers receive messages from that topic or channel. The broker acts as an intermediary between the publishers and subscribers, ensuring that messages are delivered to the correct destination.
+
+
+
+The publish-subscribe pattern is based on the concept of decoupling. Publishers and subscribers are decoupled from each other, and they do not need to know about each other's existence. This makes it easy to add new publishers or subscribers without affecting the existing system.
+
+== User Guide
+
+=== Components
+
+=== Prerequisite
+* JDK 11
+* Gradle 7.6.1
+
+
+== Performance and Benchmarking
