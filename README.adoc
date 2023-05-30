@@ -1,6 +1,11 @@
 = FluxBridge
+:css-signature: demo
+:toc: macro
+:toclevels: 2
+:icons: font
 
 toc::[]
+
 
 == About FluxBridge
 hello
@@ -9,4 +14,3 @@ hello
 hello2
 
 == What Is FluxBridge?
-
