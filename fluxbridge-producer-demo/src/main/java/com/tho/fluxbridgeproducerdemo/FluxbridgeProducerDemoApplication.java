@@ -1,5 +1,6 @@
 package com.tho.fluxbridgeproducerdemo;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,11 @@ public class FluxbridgeProducerDemoApplication {
 		SpringApplication.run(FluxbridgeProducerDemoApplication.class, args);
 	}
 
+	@Value("${fluxbridge.host}")
+	String fluxBridgeHost;
+
+	@Value("${fluxbridge.port}")
+	int fluxBridgePort;
 	@Bean
 	RSocketRequester rSocketRequester() {
 		return RSocketRequester.builder()
@@ -30,6 +36,6 @@ public class FluxbridgeProducerDemoApplication {
 								.dataBufferFactory(new DefaultDataBufferFactory(true))
 								.build()
 				)
-				.tcp("localhost", 7002);
+				.tcp(fluxBridgeHost, fluxBridgePort);
 	}
 }

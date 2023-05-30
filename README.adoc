@@ -20,7 +20,7 @@ The publish-subscribe pattern is based on the concept of decoupling. Publishers 
 == User Guide
 
 === Components
-* fluxbridge-broker: FluxBridge Broker itself
+* fluxbridge-broker: FluxBridge Broker itself.
 * fluxbridge-common: Common library, including configurations, annotations and support classes.
 * fluxbridge-consumer-demo: Spring boot app that demonstrates the usage of FluxBridge consumer (subscriber).
 * fluxbridge-producer-demo: Spring boot app that demonstrates the usage of FluxBridge producer (publisher).
@@ -34,5 +34,110 @@ The publish-subscribe pattern is based on the concept of decoupling. Publishers 
 ----
 ./gradlew bootRun
 ----
+
+=== Producer example
+
+Import FluxBridgeConfiguration.class in main/configuration class
+[source, Java] 
+----
+@SpringBootApplication
+@Import(FluxBridgeConfiguration.class)
+public class FluxbridgeConsumerDemoApplication {
+	public static void main(String[] args) {
+		SpringApplication.run(FluxbridgeConsumerDemoApplication.class, args);
+	}
+}
+----
+
+Annotate the consumer method with @FluxBridgeListener Annotation, specify the topic.
+The method parameter needs to be DataSpec.
+Once the producer publish a message with corresponding topic, metadata and data from that message can be obt
+[source, Java] 
+----
+@Controller
+@Slf4j
+public class DemoConsumer {
+
+    @FluxBridgeListener(topic = "register")
+    public void register(DataSpec dataSpec) {
+        log.info("receiving metadata: {}", dataSpec.getMetadata());
+        log.info("receiving data: {}", dataSpec.getData());
+        // your business logic here
+    }
+
+}
+----
+
+===  Consumer example 
+
+As the broker is build on top of RSocket. You need to configure a rsocket requester in your application.
+[source, Java]
+----
+@SpringBootApplication
+public class FluxbridgeProducerDemoApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(FluxbridgeProducerDemoApplication.class, args);
+	}
+
+    // broker host
+	@Value("${fluxbridge.host}")
+	String fluxBridgeHost;
+
+    // broker port
+	@Value("${fluxbridge.port}")
+	int fluxBridgePort;
+	@Bean
+	RSocketRequester rSocketRequester() {
+		return RSocketRequester.builder()
+				.rsocketStrategies(
+						RSocketStrategies.builder()
+
+								.decoder(new Jackson2JsonDecoder())
+								.encoder(new Jackson2JsonEncoder())
+								.metadataExtractorRegistry(metadataExtractorRegistry -> {
+									// meta
+								})
+								.dataBufferFactory(new DefaultDataBufferFactory(true))
+								.build()
+				)
+				.tcp(fluxBridgeHost, fluxBridgePort);
+	}
+}
+----
+
+Here is an example to publish a message to the broker
+[source, Java]
+----
+@RestController
+@Slf4j
+public class RestController {
+
+    @Autowired
+    private RSocketRequester rSocketRequester;
+
+    @GetMapping("/register")
+    public String register() {
+
+        Gson gson = new Gson();
+
+        var res = rSocketRequester
+                .route("publish")
+                .data(Message
+                        .builder()
+                        .topic("register")
+                        .data(gson.toJson(new User("tommyho")))
+                        .build()
+                )
+                .retrieveMono(String.class)
+                .block();
+
+        return "finished";
+    }
+}
+----
+
+
+
 
 == Performance and Benchmarking
